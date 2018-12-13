@@ -1,11 +1,10 @@
 
 <?php
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "97web";
-$fileDir = "index.html";
-$language = "en-us";
+// include "/configution.php";
+require($_SERVER["DOCUMENT_ROOT"]."//97web//configution.php");
+$fileDir = "./../../templates/homepage.html";
+$language = "vi-vn";
+$pageName = "homepage";
 
 // Create connection
 $conn = new mysqli($servername, $username, $password, $dbname);
@@ -14,7 +13,11 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 } 
 
-$sql = "SELECT * FROM index WHERE language_code = '$language'";
+if (!$conn->set_charset("utf8")) {
+    printf("Error loading character set utf8: %s\n", $conn->error);
+} 
+
+$sql = "SELECT * FROM $pageName WHERE language_code = '$language'";
 $result = $conn->query($sql);
 
 $piecesOfContent = [];
@@ -32,6 +35,12 @@ if ($result->num_rows > 0) {
 
 $myfile = fopen($fileDir, "r") or die("Unable to open template file!");
 $content = fread($myfile,filesize($fileDir));
+
+
+foreach ($piecesOfContent as $key => $value) {
+    $content = str_replace("@".$key."@",$value,$content);
+}
+
 echo $content;
 
 $conn->close();
